@@ -46,7 +46,9 @@ rsquare <- function(num){
   for(i in 1:ncol(com_num)){
     temp1 <- paste(com_num[1,i],com_num[2,i],sep = '-') 
     VP <- c(VP,temp1)                                   #write the pairwise names and add them in vector
-    model <- lm(num[,com_num[1,i]]~1+num[,com_num[2,i]])
+    a<- num[,com_num[1,i]]
+    b<- num[,com_num[2,i]]
+    model <- lm(a~1+b)
     temp2 <- summary(model)["r.squared"]                #use linear regression to count and take out corresponding r-square
     R2 <- c(R2,as.numeric(temp2))
   }
@@ -67,6 +69,8 @@ Cor_pearson <- function(num,threshold){
   
   #return:
   #a dataframe that contains each pair of column names and corresponding correlation coefficient
+  colna <- colnames(num) # take out all the variables' names
+  com_num <- combn(colna, 2) #combine the names pairwise
   VP2 <- c()
   Cor <- c()  #create two empty vectors
   for(i in 1:ncol(com_num)){
@@ -139,8 +143,8 @@ plot_density_count <- function(num,switch,vector){
     if(!is.null(vector)){ # if vector is NULL then
       for(j in 1:length(vector)){ 
         for(i in 1:ncol(num)){
-         
-           mean <- mean(num[,i]) #count the mean of one numeric variable
+          
+          mean <- mean(num[,i]) #count the mean of one numeric variable
           
           p1 <- ggplot(num,aes(x=num[i]),color = "blue")+  
             geom_histogram(fill="blue",bins=vector[j])+
@@ -153,7 +157,7 @@ plot_density_count <- function(num,switch,vector){
             ggtitle(paste(colnames(num[i]),vector[j],sep=" bins="))+
             xlab(colnames(num[i]))+
             geom_vline(xintercept = mean,col="red") #draw the histogram of density with ggplot and add a red line on graph
-
+          
           grid.newpage()
           pushViewport(viewport(layout = grid.layout(2, 2, heights = unit(c(1, 8), "null"))))
           title <- paste(colnames(num[i]),vector[j],sep=" bin=")
@@ -193,24 +197,24 @@ plot_density_count <- function(num,switch,vector){
     
   }else{
     if(switch == "grid"){
-        for(j in 1:length(vector)){
-          grid.newpage()
-          his_count <-list()   
-          his_density <- list()  #create two empty list for store picture later
-          for(i in 1:ncol(num)){
-            his_count[[i]] <- ggplot(num, aes_string(colnames(num[i])), color = "blue") + 
-              geom_histogram(fill="blue", bins = vector[j])+ 
-              labs(title= paste(vector[j], "bins")) #draw histograms of count and store them in list 
-          }
-          multiplot(plotlist = his_count, cols = 2)  #draw all histogram of count with same bins in one picture
-          
-          for(i in 1:ncol(num)){
-            his_density <- ggplot(num, aes_string(colnames(num[i])), color = "blue") + 
-              geom_histogram(aes(y= ..density..), fill="blue", bins = vector[j])+ 
-              labs(title= paste(vector[j], "bins")) #draw histograms of density and store them in list 
-          }
-          multiplot(plotlist = his_density, cols = 2)  #draw all histogram of density with same bins in one picture
+      for(j in 1:length(vector)){
+        grid.newpage()
+        his_count <-list()   
+        his_density <- list()  #create two empty list for store picture later
+        for(i in 1:ncol(num)){
+          his_count[[i]] <- ggplot(num, aes_string(colnames(num[i])), color = "blue") + 
+            geom_histogram(fill="blue", bins = vector[j])+ 
+            labs(title= paste(vector[j], "bins")) #draw histograms of count and store them in list 
         }
+        multiplot(plotlist = his_count, cols = 2)  #draw all histogram of count with same bins in one picture
+        
+        for(i in 1:ncol(num)){
+          his_density[[i]] <- ggplot(num, aes_string(colnames(num[i])), color = "blue") + 
+            geom_histogram(aes(y= ..density..), fill="blue", bins = vector[j])+ 
+            labs(title= paste(vector[j], "bins")) #draw histograms of density and store them in list 
+        }
+        multiplot(plotlist = his_density, cols = 2)  #draw all histogram of density with same bins in one picture
+      }
     }
   }
 }
@@ -224,8 +228,8 @@ is.binary <- function(v) {
   
   #return:
   #TRUE or FALSE
-    x <- unique(v)                    #check all the distinct and put those in a vector x
-    length(x) - sum(is.na(x)) == 2L         #check to see if x only contains 2 distinct values
+  x <- unique(v)                    #check all the distinct and put those in a vector x
+  length(x) - sum(is.na(x)) == 2L         #check to see if x only contains 2 distinct values
 }
 
 
@@ -244,7 +248,6 @@ plot_categ_binary <- function(data_frame,switch){
   data_frame <-data.frame(data_frame1,data_frame2,data_frame3)
   if(switch=="on"|| switch=="grid"){
     for(i in 1:ncol(data_frame)){
-      grid.newpage()
       p <- ggplot(data_frame,aes(x=data_frame[,i]))+
         geom_bar(fill='gray')+
         xlab(colnames(data_frame)[i])
@@ -268,7 +271,7 @@ explore <- function(dafra,switch = "on",threshold = 0,vector = NULL){
   summary_table <-summary.table(dafra)#create a summary statistics table for each numerical variable
   
   num <- Filter(is.numeric,dafra) # filter the dataframe and take out all numeric
-
+  
   RR <- rsquare(num) #create a dataframe that contains pairwise names and their r-square values
   
   CRR <- Cor_pearson(num,threshold) #create a dataframe that contains pairwise names and their pearson correlation coefficient 
@@ -278,7 +281,7 @@ explore <- function(dafra,switch = "on",threshold = 0,vector = NULL){
   plot_categ_binary(dafra,switch) #plot their gray bar graphs
   
   out <- list(nonnum_table,summary_table,RR,CRR) #create a list that contain all the results then return 
-
+  
   return(out)
 }
 
@@ -303,7 +306,7 @@ improve_explore <- function(dafra,switch, threshold, vector){
     threshold <- as.numeric(readline(prompt="Enter your correlation threshold: "))   #re-enter the threshold
   }
   
-
+  
   if(!is.numeric(vector)||(is.numeric(vector) && (TRUE %in% (binVec <= 0)))){ #check if bin vector is all numeric and all not less than 0
     print("the bins vector must be numeric vector and not less than 0")
     vector <-as.numeric(readline(prompt="Enter your bin vector: ")) #re-enter the bin vector
