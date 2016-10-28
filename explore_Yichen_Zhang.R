@@ -304,7 +304,7 @@ explore <- function(dafra,switch = "on",threshold = 0,vector = NULL){
   
   return(out)
 }
-
+explore(diamonds,'on',0.2,c(10,20))
 
 improve_explore <- function(dafra,switch = 'on', threshold = 0, vector = NULL){
   # this function is the improvement of explore()
@@ -328,7 +328,7 @@ improve_explore <- function(dafra,switch = 'on', threshold = 0, vector = NULL){
   
   if(!is.null(vector)){
   if(!is.numeric(vector)||(is.numeric(vector) && (TRUE %in% (vector <= 0)))){ #check if bin vector is all numeric and all not less than 0
-    print("the bins vector must be numeric vector and not less than 0, please enter new bins one by one and press 'return' to finish")
+    print("the bins vector must be numeric vector and not less than 0, please enter new bins one by one and press 'return' at last to finish input")
     vector <- c()
     bin <- 1
     while(bin != ""){  #input "return"  to finish loop
@@ -346,3 +346,5 @@ improve_explore <- function(dafra,switch = 'on', threshold = 0, vector = NULL){
   }
   return(explore(data_frame,switch,threshold,vector))
 }
+improve_explore(diamonds,1,-1,10)#this is wrong input so you need to re-enter later
+#improve_explore(diamonds,1,2,c('s'))
