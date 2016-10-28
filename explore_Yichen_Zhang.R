@@ -125,7 +125,7 @@ multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
 
 
 #Q3
-plot_density_count <- function(num,switch,vector){
+plot_density_count <- function(num,switch="on",vector=NULL){
   # the function plot_density_count() is thatIf the plot switch parameter is “on”,then plot a pair of
   #blue histograms with a vertical red line at the mean (one using counts and the other density) for 
   #every numerical variable at each number of bins integer specified in the bin vector parameter. 
@@ -197,6 +197,7 @@ plot_density_count <- function(num,switch,vector){
     
   }else{
     if(switch == "grid"){
+      if(!is.null(vector)){
       for(j in 1:length(vector)){
         grid.newpage()
         his_count <-list()   
@@ -215,6 +216,25 @@ plot_density_count <- function(num,switch,vector){
         }
         multiplot(plotlist = his_density, cols = 2)  #draw all histogram of density with same bins in one picture
       }
+      }else{
+        grid.newpage()
+        his_count <-list()   
+        his_density <- list()  #create two empty list for store picture later
+        for(i in 1:ncol(num)){
+          his_count[[i]] <- ggplot(num, aes_string(colnames(num[i])), color = "blue") + 
+            geom_histogram(fill="blue")+ 
+            labs(title= 'default bins') #draw histograms of count and store them in list 
+        }
+        multiplot(plotlist = his_count, cols = 2)  #draw all histogram of count with same bins in one picture
+        
+        for(i in 1:ncol(num)){
+          his_density[[i]] <- ggplot(num, aes_string(colnames(num[i])), color = "blue") + 
+            geom_histogram(aes(y= ..density..), fill="blue")+ 
+            labs(title= 'default bins') #draw histograms of density and store them in list 
+        }
+        multiplot(plotlist = his_density, cols = 2) 
+      }
+        
     }
   }
 }
@@ -286,7 +306,7 @@ explore <- function(dafra,switch = "on",threshold = 0,vector = NULL){
 }
 
 
-improve_explore <- function(dafra,switch, threshold, vector){
+improve_explore <- function(dafra,switch = 'on', threshold = 0, vector = NULL){
   # this function is the improvement of explore()
   
   data_frame <- na.omit(dafra) #cancel the whole line if there is NA exist
@@ -296,25 +316,33 @@ improve_explore <- function(dafra,switch, threshold, vector){
   }
   
   
-  if(switch != "off" && switch != "on" && switch != "grid"){   #Check to see if switch is valid input
+  while(switch != "off" && switch != "on" && switch != "grid"){   #Check to see if switch is valid input, if not, input until valid switch
     print("invalid input for switch")
     switch <- readline(prompt="Enter your option(off / on / grid): ")  #re-enter the input
   }
   
-  if(!is.numeric(threshold) || threshold < 0 || threshold >1 ){    #check to see if threshold is a valid input
+  while(!is.numeric(threshold) || threshold < 0 || threshold >1 ){    #check to see if threshold is a valid input,if not, input until valid threshold
     print("correlation threshold must be numeric and in range [0,1]")
     threshold <- as.numeric(readline(prompt="Enter your correlation threshold: "))   #re-enter the threshold
   }
   
-  
-  if(!is.numeric(vector)||(is.numeric(vector) && (TRUE %in% (binVec <= 0)))){ #check if bin vector is all numeric and all not less than 0
-    print("the bins vector must be numeric vector and not less than 0")
-    vector <-as.numeric(readline(prompt="Enter your bin vector: ")) #re-enter the bin vector
+  if(!is.null(vector)){
+  if(!is.numeric(vector)||(is.numeric(vector) && (TRUE %in% (vector <= 0)))){ #check if bin vector is all numeric and all not less than 0
+    print("the bins vector must be numeric vector and not less than 0, please enter new bins one by one and press 'return' to finish")
+    vector <- c()
+    bin <- 1
+    while(bin != ""){  #input "return"  to finish loop
+      bin <- readline(prompt="Enter the number of bins: ")->bin1
+      bin1 <- as.numeric(bin1)
+      vector <- c(vector, bin1)
+    }#re-enter the bin vector
+    vector <- na.omit(vector) #cancel the NA
   }
+  
   
   if (!is.integer(vector)) {            #Check to see if bins are all integer, if not, round it 
     vector <- round(vector)
   }
-  
+  }
   return(explore(data_frame,switch,threshold,vector))
 }
