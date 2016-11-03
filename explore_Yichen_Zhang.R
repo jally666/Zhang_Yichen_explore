@@ -203,16 +203,20 @@ plot_density_count <- function(num,switch="on",vector=NULL){
         his_count <-list()   
         his_density <- list()  #create two empty list for store picture later
         for(i in 1:ncol(num)){
+        	mean <- mean(num[,i])
           his_count[[i]] <- ggplot(num, aes_string(colnames(num[i])), color = "blue") + 
             geom_histogram(fill="blue", bins = vector[j])+ 
-            labs(title= paste(vector[j], "bins")) #draw histograms of count and store them in list 
+            labs(title= paste(vector[j], "bins"))+ #draw histograms of count and store them in list 
+            geom_vline(xintercept = mean,col="red")
         }
         multiplot(plotlist = his_count, cols = 2)  #draw all histogram of count with same bins in one picture
         
         for(i in 1:ncol(num)){
+        	mean <- mean(num[,i])
           his_density[[i]] <- ggplot(num, aes_string(colnames(num[i])), color = "blue") + 
             geom_histogram(aes(y= ..density..), fill="blue", bins = vector[j])+ 
-            labs(title= paste(vector[j], "bins")) #draw histograms of density and store them in list 
+            labs(title= paste(vector[j], "bins"))+ #draw histograms of density and store them in list 
+            geom_vline(xintercept = mean,col="red")
         }
         multiplot(plotlist = his_density, cols = 2)  #draw all histogram of density with same bins in one picture
       }
@@ -221,16 +225,20 @@ plot_density_count <- function(num,switch="on",vector=NULL){
         his_count <-list()   
         his_density <- list()  #create two empty list for store picture later
         for(i in 1:ncol(num)){
+        	mean <- mean(num[,i])
           his_count[[i]] <- ggplot(num, aes_string(colnames(num[i])), color = "blue") + 
             geom_histogram(fill="blue")+ 
-            labs(title= 'default bins') #draw histograms of count and store them in list 
+            labs(title= 'default bins')+ #draw histograms of count and store them in list 
+            geom_vline(xintercept = mean,col="red")
         }
         multiplot(plotlist = his_count, cols = 2)  #draw all histogram of count with same bins in one picture
         
         for(i in 1:ncol(num)){
+        	mean <- mean(num[,i])
           his_density[[i]] <- ggplot(num, aes_string(colnames(num[i])), color = "blue") + 
             geom_histogram(aes(y= ..density..), fill="blue")+ 
-            labs(title= 'default bins') #draw histograms of density and store them in list 
+            labs(title= 'default bins')+ #draw histograms of density and store them in list 
+            geom_vline(xintercept = mean,col="red")
         }
         multiplot(plotlist = his_density, cols = 2) 
       }

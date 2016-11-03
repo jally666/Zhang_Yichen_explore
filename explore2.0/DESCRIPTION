@@ -1,0 +1,10 @@
+Package: explore2.0
+Type: Package
+Title: Explore your data frame
+Version: 0.1.0
+Author: Yichen Zhang
+Maintainer: Yichen Zhang<yz539@georgetown.edu>
+Description: R (>=3.0.1)
+License: GU
+LazyData: TRUE
+RoxygenNote: 5.0.1
